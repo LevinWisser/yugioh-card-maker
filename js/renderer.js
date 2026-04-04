@@ -68,18 +68,23 @@ class CardRenderer {
   async render(state) {
     const ctx = this.ctx;
     const typeCfg = CARD_TYPES[state.type] || CARD_TYPES.normal;
+    const S = 421 / 813;
 
     ctx.clearRect(0, 0, CARD_W, CARD_H);
 
-    // 1. Frame
-    const frameImg = await loadImage(`assets/frames/${typeCfg.frame}`);
-    if (frameImg) {
-      ctx.drawImage(frameImg, 0, 0, CARD_W, CARD_H);
-    } else {
-      this._drawFallbackFrame(ctx, state.type);
+    // 1. Name-area background (613×170 source → full card width, h proportional)
+    const bgName = await loadImage(`assets/backgrounds/bg-name-${state.type}.png`);
+    if (bgName) ctx.drawImage(bgName, 0, 0, CARD_W, Math.round(210 * S));
+
+    // 2. Text-area background (705×231 source, positioned at sc(54), sc(884))
+    const bgText = await loadImage(`assets/backgrounds/bg-text-${state.type}.png`);
+    if (bgText) {
+      ctx.drawImage(bgText,
+        Math.round(54  * S), Math.round(884 * S),
+        Math.round(705 * S), Math.round(231 * S));
     }
 
-    // 2. Artwork
+    // 3. Artwork (drawn before frame so the art border of the frame sits on top)
     if (state.artImage) {
       const { x, y, w, h } = CARD_LAYOUT.artwork;
       ctx.save();
@@ -93,7 +98,15 @@ class CardRenderer {
       ctx.restore();
     }
 
-    // 3. Card name
+    // 4. Frame overlay (on top of artwork, covers border + transparent name/text areas)
+    const frameImg = await loadImage(`assets/frames/${typeCfg.frame}`);
+    if (frameImg) {
+      ctx.drawImage(frameImg, 0, 0, CARD_W, CARD_H);
+    } else {
+      this._drawFallbackFrame(ctx, state.type);
+    }
+
+    // 5. Card name
     if (state.name) {
       const { x, y, maxWidth, font } = CARD_LAYOUT.name;
       ctx.font = font;
@@ -112,7 +125,7 @@ class CardRenderer {
       }
     }
 
-    // 4. Attribute icon
+    // 6. Attribute icon
     const attrData = ATTRIBUTES.find(a => a.value === state.attribute);
     if (attrData) {
       const { x, y, size } = CARD_LAYOUT.attribute;
@@ -121,12 +134,12 @@ class CardRenderer {
       else this._fallbackAttr(ctx, attrData.label, x, y, size);
     }
 
-    // 5. Stars / Rank
+    // 7. Stars / Rank
     if (typeCfg.hasLevel || typeCfg.hasRank) {
       await this._drawStars(ctx, state.level, typeCfg.hasRank);
     }
 
-    // 6. Link rating text
+    // 8. Link rating text
     if (typeCfg.hasLink) {
       const { x, y, font } = CARD_LAYOUT.linkRating;
       ctx.font = font;
@@ -137,13 +150,13 @@ class CardRenderer {
       ctx.textAlign = 'left';
     }
 
-    // 7. Type line
+    // 9. Type / ability line
     this._drawTypeLine(ctx, state, typeCfg);
 
-    // 8. Effect / flavor text
+    // 10. Effect / flavor text
     drawEffectText(ctx, state.effect, state.type === 'normal');
 
-    // 9. ATK / DEF
+    // 11. ATK / DEF
     if (typeCfg.isMonster) {
       ctx.fillStyle = '#000';
       ctx.textBaseline = 'alphabetic';
@@ -157,7 +170,7 @@ class CardRenderer {
       ctx.textAlign = 'left';
     }
 
-    // 10. Link arrows
+    // 12. Link arrows
     if (typeCfg.hasLink) {
       await this._drawLinkArrows(ctx, state.linkArrows);
     }

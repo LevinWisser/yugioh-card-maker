@@ -10,7 +10,7 @@ const CARD_LAYOUT = {
   attribute: { x: sc(680), y: sc(55),   size: sc(76) },
   artwork:   { x: sc(100), y: sc(219),  w: sc(614), h: sc(614) },
   levelRow:  {
-    yBaseline:     sc(145),
+    yBaseline:     sc(170),
     starSize:      sc(50),
     spacing:       sc(3.8),
     startX_normal: sc(728.775),  // right-aligned, draw right→left

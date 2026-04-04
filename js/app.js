@@ -38,8 +38,9 @@ function populateSelects() {
   ATTRIBUTES.forEach(a => attrEl.appendChild(new Option(a.label, a.value)));
   attrEl.value = state.attribute;
 
-  const dl = document.getElementById('monster-type-list');
-  MONSTER_TYPES.forEach(t => { const o = document.createElement('option'); o.value = t; dl.appendChild(o); });
+  const monsterTypeEl = document.getElementById('monster-type');
+  MONSTER_TYPES.forEach(t => monsterTypeEl.appendChild(new Option(t, t)));
+  monsterTypeEl.value = state.monsterType;
 
   const spellSubEl = document.getElementById('spell-subtype');
   SPELL_TYPES.forEach(t => spellSubEl.appendChild(new Option(t || '— Normal —', t)));
@@ -91,7 +92,7 @@ function bindEvents() {
   bind('card-name',       'input',  e => { state.name = e.target.value; });
   bind('card-type',       'change', e => { state.type = e.target.value; updateVisibility(); });
   bind('card-attribute',  'change', e => { state.attribute = e.target.value; });
-  bind('monster-type',    'input',  e => { state.monsterType = e.target.value; });
+  bind('monster-type',    'change', e => { state.monsterType = e.target.value; });
   bind('card-level',      'input',  e => { state.level = e.target.value; });
   bind('link-rating',     'input',  e => { state.linkRating = e.target.value; });
   bind('card-atk',        'input',  e => { state.atk = e.target.value; });
@@ -153,12 +154,11 @@ function loadArtFile(file) {
 
 // ─── Set initial form values ──────────────────────────────────────────────────
 function setFormDefaults() {
-  document.getElementById('card-name').value    = state.name;
-  document.getElementById('monster-type').value = state.monsterType;
-  document.getElementById('card-level').value   = state.level;
-  document.getElementById('card-atk').value     = state.atk;
-  document.getElementById('card-def').value     = state.def;
-  document.getElementById('card-effect').value  = state.effect;
+  document.getElementById('card-name').value  = state.name;
+  document.getElementById('card-level').value = state.level;
+  document.getElementById('card-atk').value   = state.atk;
+  document.getElementById('card-def').value   = state.def;
+  document.getElementById('card-effect').value = state.effect;
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
