@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YuGiOh Card Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>YuGiOh Card Maker</h1>
+  </header>
+
+  <main class="editor-layout">
+
+    <!-- ── Left: Card Preview ── -->
+    <section class="preview-panel">
+      <div class="canvas-wrapper">
+        <canvas id="card-canvas" width="421" height="614"></canvas>
+      </div>
+    </section>
+
+    <!-- ── Right: Controls ── -->
+    <section class="controls-panel">
+
+      <!-- Card Identity -->
+      <div class="control-group">
+        <h3 class="group-title">Card Identity</h3>
+        <div class="field">
+          <label for="card-name">Card Name</label>
+          <input type="text" id="card-name" placeholder="Enter card name…" />
+        </div>
+      </div>
+
+      <!-- Card Type -->
+      <div class="control-group">
+        <h3 class="group-title">Card Type</h3>
+        <div class="field">
+          <label for="card-type">Template</label>
+          <select id="card-type"></select>
+        </div>
+        <div class="field">
+          <label for="card-attribute">Attribute</label>
+          <select id="card-attribute"></select>
+        </div>
+      </div>
+
+      <!-- Spell sub-type -->
+      <div class="control-group" id="spell-subtype-group" hidden>
+        <h3 class="group-title">Spell Type</h3>
+        <div class="field">
+          <label for="spell-subtype">Sub-Type</label>
+          <select id="spell-subtype"></select>
+        </div>
+      </div>
+
+      <!-- Trap sub-type -->
+      <div class="control-group" id="trap-subtype-group" hidden>
+        <h3 class="group-title">Trap Type</h3>
+        <div class="field">
+          <label for="trap-subtype">Sub-Type</label>
+          <select id="trap-subtype"></select>
+        </div>
+      </div>
+
+      <!-- Monster Details -->
+      <div class="control-group" id="monster-details">
+        <h3 class="group-title">Monster Details</h3>
+        <div class="field">
+          <label for="monster-type">Monster Type</label>
+          <input type="text" id="monster-type" list="monster-type-list" placeholder="Dragon, Warrior…" />
+          <datalist id="monster-type-list"></datalist>
+        </div>
+        <div class="field" id="level-group">
+          <label for="card-level" id="level-label">Level</label>
+          <input type="number" id="card-level" min="1" max="12" value="4" />
+        </div>
+      </div>
+
+      <!-- Link Rating -->
+      <div class="control-group" id="link-rating-group" hidden>
+        <h3 class="group-title">Link Rating</h3>
+        <div class="field">
+          <label for="link-rating">Link Rating</label>
+          <input type="number" id="link-rating" min="1" max="8" value="2" />
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="control-group" id="stats-group">
+        <h3 class="group-title">Stats</h3>
+        <div class="stats-row">
+          <div class="field">
+            <label for="card-atk">ATK</label>
+            <input type="text" id="card-atk" placeholder="0–9999 or ?" maxlength="5" />
+          </div>
+          <div class="field" id="def-field">
+            <label for="card-def">DEF</label>
+            <input type="text" id="card-def" placeholder="0–9999 or ?" maxlength="5" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Effect / Flavor Text -->
+      <div class="control-group">
+        <h3 class="group-title">Card Text</h3>
+        <div class="field">
+          <label for="card-effect">Effect / Flavor Text</label>
+          <textarea id="card-effect" rows="5" placeholder="Enter card effect or flavor text…"></textarea>
+        </div>
+      </div>
+
+      <!-- Artwork Upload -->
+      <div class="control-group">
+        <h3 class="group-title">Artwork</h3>
+        <input type="file" id="art-upload" accept="image/*" style="display:none" />
+        <div class="field">
+          <div id="drop-zone" class="drop-zone">
+            <span class="drop-label">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <path d="m21 15-5-5L5 21"/>
+              </svg>
+              <span>Click or drag image here</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Link Arrows -->
+      <div class="control-group" id="link-group" hidden>
+        <h3 class="group-title">Link Arrows</h3>
+        <p class="group-hint">Click to toggle active arrows</p>
+        <div id="link-arrows-grid" class="link-arrows-grid"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ── Footer / Download ── -->
+  <footer class="app-footer">
+    <span class="footer-hint">Download your card:</span>
+    <button id="btn-png" class="btn-download">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download PNG
+    </button>
+    <button id="btn-jpg" class="btn-download btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download JPG
+    </button>
+  </footer>
+
+  <!-- Scripts loaded in dependency order — no ES modules needed -->
+  <script src="js/constants.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/downloader.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
