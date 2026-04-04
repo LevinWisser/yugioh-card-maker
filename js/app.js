@@ -43,10 +43,10 @@ function populateSelects() {
   monsterTypeEl.value = state.monsterType;
 
   const spellSubEl = document.getElementById('spell-subtype');
-  SPELL_TYPES.forEach(t => spellSubEl.appendChild(new Option(t || '— Normal —', t)));
+  SPELL_TYPES.forEach(t => spellSubEl.appendChild(new Option(t.label, t.value)));
 
   const trapSubEl = document.getElementById('trap-subtype');
-  TRAP_TYPES.forEach(t => trapSubEl.appendChild(new Option(t || '— Normal —', t)));
+  TRAP_TYPES.forEach(t => trapSubEl.appendChild(new Option(t.label, t.value)));
 
   // Link arrow buttons
   const grid = document.getElementById('link-arrows-grid');
