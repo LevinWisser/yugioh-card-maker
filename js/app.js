@@ -94,6 +94,13 @@ function updateVisibility() {
   if (isSpell)     { attrEl.value = 'spell'; state.attribute = 'spell'; }
   else if (isTrap) { attrEl.value = 'trap';  state.attribute = 'trap';  }
   attrEl.disabled = isSpellOrTrap;
+
+  // Disable SPELL/TRAP options for monster types, re-enable for Spell/Trap cards
+  attrEl.querySelectorAll('option').forEach(opt => {
+    if (opt.value === 'spell' || opt.value === 'trap') {
+      opt.disabled = cfg.isMonster;
+    }
+  });
 }
 
 // ─── Event wiring ─────────────────────────────────────────────────────────────
