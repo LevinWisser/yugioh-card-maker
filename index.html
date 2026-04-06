@@ -4,9 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YuGiOh Card Maker</title>
+  <!--
+    Official YuGiOh fonts — download from:
+    https://github.com/lauqerm/ygocarder/tree/main/public/asset/font
+    Place .woff/.woff2/.ttf files in assets/fonts/
+    Without them, Cinzel / Palatino are used as fallbacks.
+  -->
+  <style>
+    @font-face {
+      font-family: 'MatrixRegularSmallCaps';
+      src: url('assets/fonts/MatrixRegularSmallCaps.ttf') format('truetype');
+      font-weight: normal; font-style: normal;
+    }
+    @font-face {
+      font-family: 'MatrixBoldSmallCaps';
+      src: url('assets/fonts/MatrixBoldSmallCaps.woff2') format('woff2'),
+           url('assets/fonts/MatrixBoldSmallCaps.woff')  format('woff');
+      font-weight: bold; font-style: normal;
+    }
+    @font-face {
+      font-family: 'MatrixBook';
+      src: url('assets/fonts/MatrixBook.ttf') format('truetype');
+      font-weight: normal; font-style: normal;
+    }
+    @font-face {
+      font-family: 'YuGiOhITCStoneSerifBSc';
+      src: url('assets/fonts/YuGiOhITCStoneSerifBSc.ttf') format('truetype');
+      font-weight: normal; font-style: normal;
+    }
+  </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>

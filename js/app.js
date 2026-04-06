@@ -1,7 +1,7 @@
-// ─── State (default: Normal/Vanilla monster, Level 4, DARK) ──────────────────
+// ─── State (default: Effect Monster, Level 4, DARK) ──────────────────────────
 const state = {
   name:             'My Card',
-  type:             'normal',
+  type:             'effect',
   attribute:        'dark',
   monsterType:      'Dragon',
   spellTrapSubtype: '',

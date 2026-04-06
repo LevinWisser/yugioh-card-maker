@@ -1,33 +1,65 @@
 // ─── Canvas dimensions ────────────────────────────────────────────────────────
 // Source frames are 813×1185. We render at 421×614.
+// All coordinates derived from lauqerm/ygocarder (813×1185) scaled by S=421/813.
 const CARD_W = 421;
 const CARD_H = 614;
+const S = CARD_W / 813; // ≈ 0.5178
 
-// All coordinates are hand-calibrated to match the frame images visually.
+// Official YuGiOh font stack (local fonts first, web-safe fallbacks second).
+// Download fonts from https://github.com/lauqerm/ygocarder/tree/main/public/asset/font
+// and place them in assets/fonts/ — see @font-face declarations in index.html.
+const F_NAME   = '"MatrixRegularSmallCaps", "Cinzel", serif';
+const F_EFFECT = '"MatrixBook", "Palatino Linotype", "Book Antiqua", serif';
+const F_TYPE   = '"YuGiOhITCStoneSerifBSc", "Palatino Linotype", serif';
+const F_STAT   = '"MatrixBoldSmallCaps", "Cinzel", serif';
+
 const CARD_LAYOUT = {
-  //             x    y    extra
-  name:      { x: 30,  y: 57,  maxWidth: 284, font: '32px Cinzel, serif' },
-  attribute: { x: 373, y: 14,  size: 40 },
-  // Subtype icon (Continuous/Quick-Play/etc.) sits to the LEFT of attribute
-  subtype:   { size: 26, gap: 4 },   // x = attribute.x - size - gap, y centred with attribute
-  artwork:   { x: 52,  y: 113, w: 318, h: 318 },
+  // Card name — baseline at y=116 in ygocarder → 116*S ≈ 60
+  // maxWidth 608 (with attribute icon) → 608*S ≈ 315
+  name:      { x: Math.round(63*S), y: Math.round(116*S), maxWidth: Math.round(608*S), font: `${Math.round(91*S)}px ${F_NAME}` },
+
+  // Attribute icon — x=680, y=55, size=76 in ygocarder
+  attribute: { x: Math.round(680*S), y: Math.round(55*S), size: Math.round(76*S) },
+
+  // Spell/Trap type label in name area — right-aligned, large format
+  // ygocarder: trueEdge=732 (right edge), trueBaseline=187.5, font 42px
+  spellTrapTypeLabel: { x: Math.round(732*S), y: Math.round(187.5*S), font: `20px ${F_TYPE}` },
+
+  // Subtype icon — shown inline in the spell/trap type label
+  // iconWidth=43, iconHeight=44 in ygocarder
+  subtype:   { size: Math.round(43*S), gap: 4 },
+
+  // Artwork — 100,219,614,614 in ygocarder
+  artwork:   { x: Math.round(100*S), y: Math.round(219*S), w: Math.round(614*S), h: Math.round(614*S) },
+
+  // Level / rank stars — top y=145, starWidth=50, spacing=3.8 in ygocarder
+  // Right-to-left (normal): rightmost star right-edge at x=728.775
+  // Left-to-right (xyz):    leftmost star left-edge  at x=85.9125
   levelRow:  {
-    yBaseline:     93,   // bottom of star images
-    starSize:      26,
-    spacing:       2,
-    startX_normal: 388,  // right-aligned: star[0] right edge
-    startX_xyz:    33,   // left-aligned:  star[0] left edge
+    yBaseline:     Math.round((145 + 50) * S), // bottom of star images ≈ 101
+    starSize:      Math.round(50  * S),         // ≈ 26
+    spacing:       Math.round(3.8 * S),         // ≈ 2
+    startX_normal: Math.round(728.775 * S),     // ≈ 377
+    startX_xyz:    Math.round(85.9125 * S),     // ≈ 44
   },
-  // Background images (sourced from ygocarder at 813×1185 → scaled)
-  bgName:    { x: 0,  y: 0,   w: CARD_W, h: 109 },  // 813×170 → full width, h=210*0.518
-  bgText:    { x: 28, y: 458, w: 365,    h: 120 },   // 705×231 at x=54,y=884 → scaled
-  // Type / effect text
-  typeLine:  { x: 30, y: 473, maxWidth: 362, font: 'bold 13px "IM Fell English", serif' },
-  effectBox: { x: 30, y: 487, w: 362,    h: 80,  fontBase: 13 },
-  // ATK / DEF (right-aligned)
-  atk:       { x: 319, y: 573, font: 'bold 14px "IM Fell English", serif' },
-  def:       { x: 399, y: 573, font: 'bold 14px "IM Fell English", serif' },
-  linkRating:{ x: 389, y: 573, font: 'bold 14px "IM Fell English", serif' },
+
+  // Background images — sourced from ygocarder at 813×1185
+  bgName:    { x: 0,                    y: 0,                    w: CARD_W,              h: Math.round(170*S) },
+  bgText:    { x: Math.round(54*S),     y: Math.round(884*S),    w: Math.round(705*S),   h: Math.round(231*S) },
+
+  // Type / ability line — baseline at y=920 in ygocarder (textBaseline='alphabetic')
+  // Font 31.5px in ygocarder → 31.5*S ≈ 16px
+  typeLine:  { x: Math.round(62.5*S), y: Math.round(920*S), maxWidth: Math.round(684.5*S), font: `${Math.round(31.5*S)}px ${F_TYPE}` },
+
+  // Effect text box — top at y=920.8 in ygocarder (textBaseline='top'), width=684, cap=152
+  // Base font 40.2px in ygocarder → 40.2*S ≈ 21px; minimum ~8px
+  effectBox: { x: Math.round(65*S), y: Math.round(920.8*S), w: Math.round(684*S), h: Math.round(152*S), fontBase: Math.round(40.2*S) },
+
+  // ATK / DEF — right-aligned; values end at x≈582 (ATK) and x≈748 (DEF) in ygocarder
+  // Font 37px in ygocarder → 37*S ≈ 19px
+  atk:        { x: Math.round(582.8*S), y: Math.round(1106.5*S), font: `bold ${Math.round(37*S)}px ${F_STAT}` },
+  def:        { x: Math.round(748.0*S), y: Math.round(1106.5*S), font: `bold ${Math.round(37*S)}px ${F_STAT}` },
+  linkRating: { x: Math.round(748.0*S), y: Math.round(1106.5*S), font: `bold ${Math.round(37*S)}px ${F_STAT}` },
 };
 
 // ─── Card types ───────────────────────────────────────────────────────────────
@@ -93,7 +125,6 @@ const LINK_ARROWS = [
 ];
 
 // Link arrow positions scaled from ygocarder 813×1185 to 421×614
-const S = 421 / 813;
 const LINK_ARROW_RECTS = [
   { file: 1, x: Math.round(55  * S), y: Math.round(175 * S), w: Math.round(100 * S), h: Math.round(100 * S) },
   { file: 2, x: Math.round(323 * S), y: Math.round(165 * S), w: Math.round(170 * S), h: Math.round(80  * S) },
