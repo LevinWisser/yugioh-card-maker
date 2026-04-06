@@ -56,67 +56,78 @@
     <!-- ── Right: Controls ── -->
     <section class="controls-panel">
 
-      <!-- Card Identity -->
-      <div class="control-group">
-        <h3 class="group-title">Card Identity</h3>
-        <div class="field">
-          <label for="card-name">Card Name</label>
-          <input type="text" id="card-name" placeholder="Enter card name…" />
-        </div>
-      </div>
+      <!-- Top Section: col1 = Identity/Type, col2 = MonsterDetails/SubType, col3 = LinkRating -->
+      <div class="top-section">
 
-      <!-- Card Type -->
-      <div class="control-group">
-        <h3 class="group-title">Card Type</h3>
-        <div class="field">
-          <label for="card-type">Template</label>
-          <select id="card-type"></select>
-        </div>
-        <div class="field">
-          <label for="card-attribute">Attribute</label>
-          <select id="card-attribute"></select>
-        </div>
-      </div>
+        <div class="top-col">
+          <!-- Card Identity -->
+          <div class="control-group">
+            <h3 class="group-title">Card Identity</h3>
+            <div class="field">
+              <label for="card-name">Card Name</label>
+              <input type="text" id="card-name" placeholder="Enter card name…" />
+            </div>
+          </div>
 
-      <!-- Spell sub-type -->
-      <div class="control-group" id="spell-subtype-group" hidden>
-        <h3 class="group-title">Spell Type</h3>
-        <div class="field">
-          <label for="spell-subtype">Sub-Type</label>
-          <select id="spell-subtype"></select>
-        </div>
-      </div>
+          <!-- Card Type -->
+          <div class="control-group">
+            <h3 class="group-title">Card Type</h3>
+            <div class="field">
+              <label for="card-type">Template</label>
+              <select id="card-type"></select>
+            </div>
+            <div class="field">
+              <label for="card-attribute">Attribute</label>
+              <select id="card-attribute"></select>
+            </div>
+          </div>
+        </div><!-- /.top-col -->
 
-      <!-- Trap sub-type -->
-      <div class="control-group" id="trap-subtype-group" hidden>
-        <h3 class="group-title">Trap Type</h3>
-        <div class="field">
-          <label for="trap-subtype">Sub-Type</label>
-          <select id="trap-subtype"></select>
-        </div>
-      </div>
+        <div class="top-col">
+          <!-- Monster Details -->
+          <div class="control-group" id="monster-details">
+            <h3 class="group-title">Monster Details</h3>
+            <div class="field">
+              <label for="monster-type">Monster Type</label>
+              <select id="monster-type"></select>
+            </div>
+            <div class="field" id="level-group">
+              <label for="card-level" id="level-label">Level</label>
+              <input type="number" id="card-level" min="1" max="12" value="4" />
+            </div>
+          </div>
 
-      <!-- Monster Details -->
-      <div class="control-group" id="monster-details">
-        <h3 class="group-title">Monster Details</h3>
-        <div class="field">
-          <label for="monster-type">Monster Type</label>
-          <select id="monster-type"></select>
-        </div>
-        <div class="field" id="level-group">
-          <label for="card-level" id="level-label">Level</label>
-          <input type="number" id="card-level" min="1" max="12" value="4" />
-        </div>
-      </div>
+          <!-- Spell sub-type -->
+          <div class="control-group" id="spell-subtype-group" hidden>
+            <h3 class="group-title">Spell Type</h3>
+            <div class="field">
+              <label for="spell-subtype">Sub-Type</label>
+              <select id="spell-subtype"></select>
+            </div>
+          </div>
 
-      <!-- Link Rating -->
-      <div class="control-group" id="link-rating-group" hidden>
-        <h3 class="group-title">Link Rating</h3>
-        <div class="field">
-          <label for="link-rating">Link Rating</label>
-          <input type="number" id="link-rating" min="1" max="8" value="2" />
-        </div>
-      </div>
+          <!-- Trap sub-type -->
+          <div class="control-group" id="trap-subtype-group" hidden>
+            <h3 class="group-title">Trap Type</h3>
+            <div class="field">
+              <label for="trap-subtype">Sub-Type</label>
+              <select id="trap-subtype"></select>
+            </div>
+          </div>
+        </div><!-- /.top-col -->
+
+        <div class="top-col">
+          <!-- Link Rating -->
+          <div class="control-group" id="link-rating-group" hidden>
+            <h3 class="group-title">Link Rating</h3>
+            <div class="field">
+              <label for="link-rating">Link Rating</label>
+              <input type="number" id="link-rating" min="1" max="8" value="2" />
+            </div>
+          </div>
+        </div><!-- /.top-col -->
+
+      </div><!-- /.top-section -->
 
       <!-- Bottom Section: col1 = Stats/LinkArrows, col2 = CardText, col3 = Artwork -->
       <div class="bottom-section">

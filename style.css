@@ -86,7 +86,8 @@ html, body {
   grid-column: 1 / -1;
 }
 
-/* ── Bottom Section ──────────────────────────────────────────────────────── */
+/* ── Top / Bottom Sections ───────────────────────────────────────────────── */
+.top-section,
 .bottom-section {
   grid-column: 1 / -1;
   display: grid;
@@ -94,6 +95,7 @@ html, body {
   gap: 16px;
   align-items: start;
 }
+.top-col,
 .bottom-left {
   display: flex;
   flex-direction: column;
