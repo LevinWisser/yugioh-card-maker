@@ -78,7 +78,7 @@ html, body {
   overflow-y: auto;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
+  gap: 0;
   align-items: start;
 }
 
