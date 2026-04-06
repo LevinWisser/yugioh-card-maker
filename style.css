@@ -77,7 +77,7 @@ html, body {
   padding: 24px 28px 24px 28px;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   align-items: start;
 }
@@ -90,7 +90,7 @@ html, body {
 .bottom-section {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   align-items: start;
 }
