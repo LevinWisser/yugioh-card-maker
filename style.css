@@ -76,9 +76,14 @@ html, body {
 .controls-panel {
   padding: 24px 28px 24px 28px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
+  align-items: start;
+}
+
+.control-group.col-span {
+  grid-column: 1 / -1;
 }
 
 /* ── Control Group ───────────────────────────────────────────────────────── */
