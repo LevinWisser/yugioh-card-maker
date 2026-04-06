@@ -93,6 +93,7 @@ function updateVisibility() {
   const attrEl = document.getElementById('card-attribute');
   if (isSpell)     { attrEl.value = 'spell'; state.attribute = 'spell'; }
   else if (isTrap) { attrEl.value = 'trap';  state.attribute = 'trap';  }
+  else if (attrEl.value === 'spell' || attrEl.value === 'trap') { attrEl.value = 'dark'; state.attribute = 'dark'; }
   attrEl.disabled = isSpellOrTrap;
 
   // Disable SPELL/TRAP options for monster types, re-enable for Spell/Trap cards
