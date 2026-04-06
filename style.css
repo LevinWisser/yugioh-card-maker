@@ -78,7 +78,7 @@ html, body {
   overflow-y: auto;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 0;
+  gap: 16px;
   align-items: start;
 }
 
@@ -86,17 +86,15 @@ html, body {
   grid-column: 1 / -1;
 }
 
-/* ── Top / Bottom Sections ───────────────────────────────────────────────── */
-.top-section,
-.bottom-section {
+/* ── Main Section ────────────────────────────────────────────────────────── */
+.main-section {
   grid-column: 1 / -1;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   align-items: start;
 }
-.top-col,
-.bottom-left {
+.main-col {
   display: flex;
   flex-direction: column;
   gap: 16px;
