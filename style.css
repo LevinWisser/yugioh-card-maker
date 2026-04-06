@@ -168,6 +168,14 @@ select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Greyed-out (disabled) groups and fields ─────────────────────────────── */
+.control-group.greyed,
+.field.greyed {
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
+}
 textarea {
   resize: vertical;
   min-height: 90px;

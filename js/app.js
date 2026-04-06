@@ -67,24 +67,33 @@ function populateSelects() {
 }
 
 // ─── Form visibility ──────────────────────────────────────────────────────────
+function setGreyed(id, greyOut) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('greyed', greyOut);
+}
+
 function updateVisibility() {
-  const cfg = CARD_TYPES[state.type];
-  document.getElementById('monster-details').hidden      = !cfg.isMonster;
-  document.getElementById('stats-group').hidden          = !cfg.isMonster;
-  document.getElementById('def-field').hidden            = cfg.hasLink;
-  document.getElementById('link-group').hidden           = !cfg.hasLink;
-  document.getElementById('level-group').hidden          = (!cfg.hasLevel && !cfg.hasRank) || cfg.hasLink;
-  document.getElementById('link-rating-group').hidden    = !cfg.hasLink;
-  document.getElementById('spell-subtype-group').hidden  = state.type !== 'spell';
-  document.getElementById('trap-subtype-group').hidden   = state.type !== 'trap';
+  const cfg         = CARD_TYPES[state.type];
+  const isSpell     = state.type === 'spell';
+  const isTrap      = state.type === 'trap';
+  const isSpellOrTrap = isSpell || isTrap;
+
+  setGreyed('monster-details',     isSpellOrTrap);
+  setGreyed('stats-group',         isSpellOrTrap);
+  setGreyed('def-field',           cfg.hasLink);
+  setGreyed('link-group',          !cfg.hasLink);
+  setGreyed('level-group',         (!cfg.hasLevel && !cfg.hasRank) || cfg.hasLink);
+  setGreyed('link-rating-group',   !cfg.hasLink);
+  setGreyed('spell-subtype-group', !isSpell);
+  setGreyed('trap-subtype-group',  !isTrap);
 
   const levelLabel = document.getElementById('level-label');
   levelLabel.textContent = cfg.hasRank ? 'Rank' : 'Level';
 
   const attrEl = document.getElementById('card-attribute');
-  if (state.type === 'spell')      { attrEl.value = 'spell'; state.attribute = 'spell'; }
-  else if (state.type === 'trap')  { attrEl.value = 'trap';  state.attribute = 'trap';  }
-  attrEl.disabled = (state.type === 'spell' || state.type === 'trap');
+  if (isSpell)     { attrEl.value = 'spell'; state.attribute = 'spell'; }
+  else if (isTrap) { attrEl.value = 'trap';  state.attribute = 'trap';  }
+  attrEl.disabled = isSpellOrTrap;
 }
 
 // ─── Event wiring ─────────────────────────────────────────────────────────────
