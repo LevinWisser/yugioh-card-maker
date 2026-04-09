@@ -113,8 +113,8 @@ function bindEvents() {
   bind('monster-type',    'change', e => { state.monsterType = e.target.value; });
   bind('card-level',      'input',  e => { state.level = e.target.value; });
   bind('link-rating',     'input',  e => { state.linkRating = e.target.value; });
-  bind('card-atk',        'input',  e => { state.atk = e.target.value; });
-  bind('card-def',        'input',  e => { state.def = e.target.value; });
+  bind('card-atk',        'input',  e => { e.target.value = e.target.value.replace(/[^0-9?]/g, ''); state.atk = e.target.value; });
+  bind('card-def',        'input',  e => { e.target.value = e.target.value.replace(/[^0-9?]/g, ''); state.def = e.target.value; });
   bind('card-effect',     'input',  e => { state.effect = e.target.value; });
   bind('spell-subtype',   'change', e => { state.spellTrapSubtype = e.target.value; });
   bind('trap-subtype',    'change', e => { state.spellTrapSubtype = e.target.value; });
