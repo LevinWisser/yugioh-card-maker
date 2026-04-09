@@ -247,16 +247,24 @@
     <div class="modal">
       <div class="modal-header">
         <h2 class="modal-title">My Saved Cards</h2>
-        <button id="modal-close" class="modal-close" aria-label="Close">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+        <div class="modal-header-actions">
+          <button id="btn-new-collection" class="btn-new-collection">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            New Collection
+          </button>
+          <button id="modal-close" class="modal-close" aria-label="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
       </div>
       <div id="cards-loading" class="cards-loading hidden">Loading…</div>
       <div id="cards-empty" class="cards-empty hidden">Noch keine gespeicherten Karten.</div>
-      <div id="cards-grid" class="cards-grid"></div>
+      <div id="cards-content" class="cards-content"></div>
     </div>
   </div>
 

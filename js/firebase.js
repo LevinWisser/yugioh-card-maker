@@ -86,6 +86,7 @@ const FB = (() => {
       ...serialize(state),
       artworkDataUrl:   state.artImage ? encodeArtwork(state.artImage) : null,
       thumbnailDataUrl: makeThumbnail(canvas),
+      collectionId: null,
       createdAt: now,
       updatedAt: now,
     };
@@ -115,5 +116,49 @@ const FB = (() => {
     await col().doc(cardId).delete();
   }
 
-  return { init, signIn, signOut, onAuthChange, saveNew, update, list, remove };
+  // ── Collections ─────────────────────────────────────────────────────────────
+
+  function colsRef() {
+    return db.collection('userCollections').doc(currentUserId).collection('items');
+  }
+
+  async function createCollection(name) {
+    if (!currentUserId) throw new Error('Nicht eingeloggt');
+    const ref = await colsRef().add({
+      name,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    return ref.id;
+  }
+
+  async function listCollections() {
+    if (!currentUserId) throw new Error('Nicht eingeloggt');
+    const snap = await colsRef().orderBy('createdAt', 'asc').get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  async function renameCollection(colId, name) {
+    if (!currentUserId) throw new Error('Nicht eingeloggt');
+    await colsRef().doc(colId).update({ name });
+  }
+
+  async function deleteCollection(colId) {
+    if (!currentUserId) throw new Error('Nicht eingeloggt');
+    const snap = await col().where('collectionId', '==', colId).get();
+    const batch = db.batch();
+    snap.docs.forEach(d => batch.update(d.ref, { collectionId: null }));
+    batch.delete(colsRef().doc(colId));
+    await batch.commit();
+  }
+
+  async function moveCardToCollection(cardId, colId) {
+    if (!currentUserId) throw new Error('Nicht eingeloggt');
+    await col().doc(cardId).update({ collectionId: colId });
+  }
+
+  return {
+    init, signIn, signOut, onAuthChange,
+    saveNew, update, list, remove,
+    createCollection, listCollections, renameCollection, deleteCollection, moveCardToCollection,
+  };
 })();

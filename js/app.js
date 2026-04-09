@@ -250,6 +250,8 @@ function bindAuthEvents() {
 
   document.getElementById('btn-my-cards').addEventListener('click', openMyCards);
 
+  document.getElementById('btn-new-collection').addEventListener('click', showNewCollectionInput);
+
   document.getElementById('btn-save').addEventListener('click', async () => {
     const btn = document.getElementById('btn-save');
     btn.disabled = true;
@@ -289,17 +291,17 @@ function closeMyCards() {
 }
 
 async function refreshMyCards() {
-  const grid    = document.getElementById('cards-grid');
+  const content = document.getElementById('cards-content');
   const empty   = document.getElementById('cards-empty');
   const loading = document.getElementById('cards-loading');
 
-  grid.innerHTML = '';
+  content.innerHTML = '';
   loading.classList.remove('hidden');
   empty.classList.add('hidden');
 
-  let cards;
+  let collections, cards;
   try {
-    cards = await FB.list();
+    [collections, cards] = await Promise.all([FB.listCollections(), FB.list()]);
   } catch (err) {
     showToast('Laden fehlgeschlagen: ' + err.message, true);
     loading.classList.add('hidden');
@@ -308,68 +310,315 @@ async function refreshMyCards() {
 
   loading.classList.add('hidden');
 
-  if (cards.length === 0) {
+  if (collections.length === 0 && cards.length === 0) {
     empty.classList.remove('hidden');
     return;
   }
 
+  // Group cards by collectionId
+  const byCol = {};
+  const uncollected = [];
   cards.forEach(card => {
-    const item = document.createElement('div');
-    item.className = 'saved-card-item';
-
-    const thumb = document.createElement('img');
-    thumb.className = 'saved-card-thumb';
-    thumb.src = card.thumbnailDataUrl || '';
-    thumb.alt = card.name;
-
-    const info = document.createElement('div');
-    info.className = 'saved-card-info';
-
-    const nameEl = document.createElement('span');
-    nameEl.className = 'saved-card-name';
-    nameEl.textContent = card.name || '(kein Name)';
-
-    const typeEl = document.createElement('span');
-    typeEl.className = 'saved-card-meta';
-    const cfg = CARD_TYPES[card.type];
-    typeEl.textContent = cfg ? cfg.label : card.type;
-
-    info.append(nameEl, typeEl);
-
-    const actions = document.createElement('div');
-    actions.className = 'saved-card-actions';
-
-    const loadBtn = document.createElement('button');
-    loadBtn.className = 'btn-card-action';
-    loadBtn.textContent = 'Load';
-    loadBtn.addEventListener('click', () => {
-      loadCardFromSave(card);
-      closeMyCards();
-    });
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'btn-card-action btn-card-delete';
-    delBtn.textContent = 'Delete';
-    delBtn.addEventListener('click', async () => {
-      delBtn.disabled = true;
-      try {
-        await FB.remove(card.id);
-        item.remove();
-        if (grid.children.length === 0) empty.classList.remove('hidden');
-        if (state._firebaseId === card.id) {
-          state._firebaseId = null;
-          updateSaveButton();
-        }
-      } catch (err) {
-        showToast('Löschen fehlgeschlagen', true);
-        delBtn.disabled = false;
-      }
-    });
-
-    actions.append(loadBtn, delBtn);
-    item.append(thumb, info, actions);
-    grid.appendChild(item);
+    const cid = card.collectionId || null;
+    if (cid) {
+      (byCol[cid] = byCol[cid] || []).push(card);
+    } else {
+      uncollected.push(card);
+    }
   });
+
+  collections.forEach(col => {
+    content.appendChild(renderCollectionSection(col, byCol[col.id] || []));
+  });
+
+  if (uncollected.length > 0 || collections.length > 0) {
+    content.appendChild(renderUncollectedSection(uncollected));
+  }
+}
+
+function makeCardItem(card) {
+  const item = document.createElement('div');
+  item.className = 'saved-card-item';
+  item.draggable = true;
+
+  item.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', card.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => item.classList.add('dragging'), 0);
+  });
+  item.addEventListener('dragend', () => item.classList.remove('dragging'));
+
+  const thumb = document.createElement('img');
+  thumb.className = 'saved-card-thumb';
+  thumb.src = card.thumbnailDataUrl || '';
+  thumb.alt = card.name;
+
+  const info = document.createElement('div');
+  info.className = 'saved-card-info';
+
+  const nameEl = document.createElement('span');
+  nameEl.className = 'saved-card-name';
+  nameEl.textContent = card.name || '(kein Name)';
+
+  const typeEl = document.createElement('span');
+  typeEl.className = 'saved-card-meta';
+  const cfg = CARD_TYPES[card.type];
+  typeEl.textContent = cfg ? cfg.label : card.type;
+
+  info.append(nameEl, typeEl);
+
+  const actions = document.createElement('div');
+  actions.className = 'saved-card-actions';
+
+  const loadBtn = document.createElement('button');
+  loadBtn.className = 'btn-card-action';
+  loadBtn.textContent = 'Load';
+  loadBtn.addEventListener('click', () => {
+    loadCardFromSave(card);
+    closeMyCards();
+  });
+
+  const delBtn = document.createElement('button');
+  delBtn.className = 'btn-card-action btn-card-delete';
+  delBtn.textContent = 'Delete';
+  delBtn.addEventListener('click', async () => {
+    delBtn.disabled = true;
+    try {
+      await FB.remove(card.id);
+      if (state._firebaseId === card.id) {
+        state._firebaseId = null;
+        updateSaveButton();
+      }
+      await refreshMyCards();
+    } catch (err) {
+      showToast('Löschen fehlgeschlagen', true);
+      delBtn.disabled = false;
+    }
+  });
+
+  actions.append(loadBtn, delBtn);
+  item.append(thumb, info, actions);
+  return item;
+}
+
+function setupDropZone(el, colId) {
+  el.addEventListener('dragover', e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    el.classList.add('drag-over');
+  });
+  el.addEventListener('dragleave', e => {
+    if (!el.contains(e.relatedTarget)) el.classList.remove('drag-over');
+  });
+  el.addEventListener('drop', async e => {
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    const cardId = e.dataTransfer.getData('text/plain');
+    if (!cardId) return;
+    try {
+      await FB.moveCardToCollection(cardId, colId);
+      await refreshMyCards();
+    } catch (err) {
+      showToast('Fehler beim Verschieben', true);
+    }
+  });
+}
+
+function renderCollectionSection(col, cards) {
+  const section = document.createElement('div');
+  section.className = 'collection-section';
+
+  const header = document.createElement('div');
+  header.className = 'collection-header';
+
+  const toggle = document.createElement('span');
+  toggle.className = 'collection-toggle';
+  toggle.textContent = '▼';
+
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'collection-name';
+  nameSpan.textContent = col.name;
+
+  const countSpan = document.createElement('span');
+  countSpan.className = 'collection-count';
+  countSpan.textContent = `(${cards.length})`;
+
+  const colActions = document.createElement('div');
+  colActions.className = 'collection-actions';
+
+  const renameBtn = document.createElement('button');
+  renameBtn.className = 'btn-col-action';
+  renameBtn.textContent = 'Rename';
+  renameBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    startInlineRename(col.id, nameSpan);
+  });
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'btn-col-action btn-col-delete';
+  deleteBtn.textContent = 'Delete';
+  deleteBtn.addEventListener('click', async e => {
+    e.stopPropagation();
+    if (!confirm(`Delete collection "${col.name}"? Cards will be moved to Uncollected.`)) return;
+    deleteBtn.disabled = true;
+    try {
+      await FB.deleteCollection(col.id);
+      await refreshMyCards();
+    } catch (err) {
+      showToast('Fehler: ' + err.message, true);
+      deleteBtn.disabled = false;
+    }
+  });
+
+  colActions.append(renameBtn, deleteBtn);
+  header.append(toggle, nameSpan, countSpan, colActions);
+
+  const cardList = document.createElement('div');
+  cardList.className = 'collection-cards';
+
+  if (cards.length === 0) {
+    cardList.appendChild(makeDropHint('Drop cards here'));
+  } else {
+    cards.forEach(card => cardList.appendChild(makeCardItem(card)));
+  }
+
+  setupDropZone(cardList, col.id);
+
+  header.addEventListener('click', () => {
+    section.classList.toggle('collapsed');
+    toggle.textContent = section.classList.contains('collapsed') ? '▶' : '▼';
+  });
+
+  section.append(header, cardList);
+  return section;
+}
+
+function renderUncollectedSection(cards) {
+  const section = document.createElement('div');
+  section.className = 'collection-section collection-uncollected';
+
+  const header = document.createElement('div');
+  header.className = 'collection-header';
+
+  const toggle = document.createElement('span');
+  toggle.className = 'collection-toggle';
+  toggle.textContent = '▼';
+
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'collection-name';
+  nameSpan.textContent = 'Uncollected';
+
+  const countSpan = document.createElement('span');
+  countSpan.className = 'collection-count';
+  countSpan.textContent = `(${cards.length})`;
+
+  header.append(toggle, nameSpan, countSpan);
+
+  const cardList = document.createElement('div');
+  cardList.className = 'collection-cards';
+
+  if (cards.length === 0) {
+    cardList.appendChild(makeDropHint('Drop cards here to remove from collection'));
+  } else {
+    cards.forEach(card => cardList.appendChild(makeCardItem(card)));
+  }
+
+  setupDropZone(cardList, null);
+
+  header.addEventListener('click', () => {
+    section.classList.toggle('collapsed');
+    toggle.textContent = section.classList.contains('collapsed') ? '▶' : '▼';
+  });
+
+  section.append(header, cardList);
+  return section;
+}
+
+function makeDropHint(text) {
+  const hint = document.createElement('div');
+  hint.className = 'drop-hint';
+  hint.textContent = text;
+  return hint;
+}
+
+function startInlineRename(colId, nameSpan) {
+  const current = nameSpan.textContent;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'collection-rename-input';
+  input.value = current;
+  nameSpan.replaceWith(input);
+  input.focus();
+  input.select();
+
+  let done = false;
+  async function save() {
+    if (done) return;
+    done = true;
+    const newName = input.value.trim();
+    if (newName && newName !== current) {
+      try {
+        await FB.renameCollection(colId, newName);
+        nameSpan.textContent = newName;
+      } catch (err) {
+        showToast('Fehler: ' + err.message, true);
+      }
+    }
+    input.replaceWith(nameSpan);
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { done = true; input.replaceWith(nameSpan); }
+  });
+}
+
+function showNewCollectionInput() {
+  const content = document.getElementById('cards-content');
+  if (document.getElementById('new-col-form')) return;
+
+  const form = document.createElement('div');
+  form.id = 'new-col-form';
+  form.className = 'new-collection-form';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Collection name…';
+  input.className = 'new-collection-input';
+
+  const createBtn = document.createElement('button');
+  createBtn.textContent = 'Create';
+  createBtn.className = 'btn-col-action';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.className = 'btn-col-action btn-col-cancel';
+
+  async function create() {
+    const name = input.value.trim();
+    if (!name) return;
+    createBtn.disabled = true;
+    try {
+      await FB.createCollection(name);
+      form.remove();
+      await refreshMyCards();
+    } catch (err) {
+      showToast('Fehler: ' + err.message, true);
+      createBtn.disabled = false;
+    }
+  }
+
+  createBtn.addEventListener('click', create);
+  cancelBtn.addEventListener('click', () => form.remove());
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  create();
+    if (e.key === 'Escape') form.remove();
+  });
+
+  form.append(input, createBtn, cancelBtn);
+  content.insertBefore(form, content.firstChild);
+  input.focus();
 }
 
 function loadCardFromSave(card) {
